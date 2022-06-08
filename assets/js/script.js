@@ -1,4 +1,5 @@
 const cityWeather = $("#day-0");
+let cityNameSpan = $("#city-name");
 
 // Get location coordinates
 const getLocationCoord = function (city) {
@@ -13,7 +14,7 @@ const getLocationCoord = function (city) {
           if (data.length === 0) {
             alert(`Error: Please enter city name`);
           } else {
-            getWeather(data[0].lat, data[0].lon);
+            getWeather(data[0].lat, data[0].lon, data[0].name);
           }
         });
       } else {
@@ -25,7 +26,7 @@ const getLocationCoord = function (city) {
     });
 };
 
-const getWeather = function (lat, lon) {
+const getWeather = function (lat, lon, name) {
   // Get next OpenWeather API
   let apiUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&units=imperial&exclude={part}&appid=d1db20b74fefd2cbae86402d9eb44d4e`;
   // Make request to the URL
@@ -36,12 +37,13 @@ const getWeather = function (lat, lon) {
           let weatherData = data.daily.slice(0, 6);
           // Loop through current + 5 days
           for (i = 0; i < weatherData.length; i++) {
+            let cityName = name;
             let day = i;
             let temp = weatherData[i].temp.day;
             let wind = weatherData[i].wind_speed;
             let humidity = weatherData[i].humidity;
             let uvIndex = weatherData[i].uvi;
-            displayWeather(day, temp, wind, humidity, uvIndex);
+            displayWeather(cityName, day, temp, wind, humidity, uvIndex);
           }
         });
       } else {
@@ -53,16 +55,31 @@ const getWeather = function (lat, lon) {
     });
 };
 
-const displayWeather = function (day, temp, wind, humidity, uvi) {
+const displayWeather = function (city, day, temp, wind, humidity, uvi) {
+  $(cityNameSpan).text(city);
+
   let choosenBlock = $(`#day-${day}`);
   let mainWeatherEl = document.createElement("div");
   let weatherListEl = document.createElement("ul");
-  let weatherItem = document.createElement("li");
 
-  weatherItem.textContent = `Temp: ${temp}`;
-  weatherListEl.appendChild(weatherItem);
-  mainWeatherEl.appendChild(weatherListEl);
-  $(choosenBlock).append(mainWeatherEl);
+  let tempLi = document.createElement("li");
+  tempLi.textContent = `Temp: ${Math.ceil(temp)} °F`;
+  let windLi = document.createElement("li");
+  windLi.textContent = `Wind: ${Math.ceil(wind)} MPH`;
+  let humidityLi = document.createElement("li");
+  humidityLi.textContent = `Humidity: ${Math.ceil(humidity)} %`;
+  let uviLi = document.createElement("li");
+  uviLi.textContent = `UV Index: ${uvi}`;
+
+  if (day === 0) {
+    $(weatherListEl).append(tempLi, windLi, humidityLi, uviLi);
+    $(mainWeatherEl).append(weatherListEl);
+    $(choosenBlock).append(mainWeatherEl);
+  } else {
+    $(weatherListEl).append(tempLi, windLi, humidityLi);
+    $(mainWeatherEl).append(weatherListEl);
+    $(choosenBlock).append(mainWeatherEl);
+  }
   console.log(choosenBlock);
 };
 
