@@ -16,9 +16,8 @@ $(searchBtn).on("click", function () {
 
   // Add city to savedCities array
   let citySearch = { city: searchInquery };
-  savedCities.push(citySearch);
-  // Reverse array to have most recent search at index 0
-  savedCities.reverse();
+  // Place new search at beginning of savedCities array
+  savedCities.unshift(citySearch);
   // Save to local storage
   localStorage.setItem("city", JSON.stringify(savedCities));
 });
