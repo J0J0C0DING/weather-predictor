@@ -4,13 +4,23 @@ const cityWeather = $("#day-0");
 let cityNameSpan = $("#city-name");
 // Search Input
 const searchInput = document.querySelector("#search-input");
-
+// Search Button
 const searchBtn = $("#search-btn");
+
+let savedCities = [] || localStorage.getItem("city");
 
 $(searchBtn).on("click", function () {
   let searchInquery = $(searchInput).val();
   getLocationCoord(searchInquery);
   $("").replaceAll(".weather-item");
+
+  // Add city to savedCities array
+  let citySearch = { city: searchInquery };
+  savedCities.push(citySearch);
+  // Reverse array to have most recent search at index 0
+  savedCities.reverse();
+  // Save to local storage
+  localStorage.setItem("city", JSON.stringify(savedCities));
 });
 
 // Get location coordinates
@@ -100,9 +110,11 @@ const displayWeather = function (city, day, temp, wind, humidity, uvi) {
   let uviLi = document.createElement("li");
   uviLi.textContent = `UV Index:`;
   uviLi.classList.add("weather-item");
+
   // Create span element to show severity of UV index
   let uviSpan = document.createElement("span");
   uviSpan.textContent = uvi;
+
   // Depending on uvi, change span background color
   if (uvi < 3) {
     uviSpan.classList.add("uv-low");
@@ -117,10 +129,12 @@ const displayWeather = function (city, day, temp, wind, humidity, uvi) {
   }
   uviLi.append(uviSpan);
 
+  // For day 0 add everything
   if (day === 0) {
     $(weatherListEl).append(tempLi, windLi, humidityLi, uviLi);
     $(mainWeatherEl).append(weatherListEl);
     $(choosenBlock).append(mainWeatherEl);
+    // For every other day, do not add uv index
   } else {
     $(weatherListEl).append(tempLi, windLi, humidityLi);
     $(mainWeatherEl).append(weatherListEl);
