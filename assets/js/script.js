@@ -1,3 +1,5 @@
+// Search History Container
+const searchHistory = $(".history");
 // Main Weather Section
 const cityWeather = $("#day-0");
 // City name span element
@@ -6,11 +8,11 @@ let cityNameSpan = $("#city-name");
 const searchInput = document.querySelector("#search-input");
 // Search Button
 const searchBtn = $("#search-btn");
-
-let savedCities = [] || localStorage.getItem("city");
+// City History
+let savedCities = JSON.parse(localStorage.getItem("city")) || [];
 
 $(searchBtn).on("click", function () {
-  let searchInquery = $(searchInput).val();
+  let searchInquery = $.trim($(searchInput).val());
   getLocationCoord(searchInquery);
   $("").replaceAll(".weather-item");
 
@@ -18,9 +20,24 @@ $(searchBtn).on("click", function () {
   let citySearch = { city: searchInquery };
   // Place new search at beginning of savedCities array
   savedCities.unshift(citySearch);
+
   // Save to local storage
   localStorage.setItem("city", JSON.stringify(savedCities));
+
+  historyDisplay();
 });
+
+// Search History
+const historyDisplay = function () {
+  savedCities.splice(5);
+  // Empty search history container
+  $(searchHistory).empty();
+  // Re-add / update search history container
+  for (i = 0; i < savedCities.length; i++) {
+    $(searchHistory).append(`<button class='historyItem' id='history-${i}'>${savedCities[i].city}</button>`);
+  }
+};
+historyDisplay();
 
 // Get location coordinates
 const getLocationCoord = function (city) {
