@@ -71,6 +71,10 @@ input {
   padding-left: 10px;
 }
 
+.city-weather {
+  padding: 10px;
+}
+
 ul {
   margin: 0;
   padding: 0;
@@ -78,4 +82,30 @@ ul {
 
 li {
   list-style: none;
+}
+
+.uv-low {
+  background-color: green;
+  color: white;
+  padding: 2px;
+}
+.uv-mod {
+  background-color: rgb(248, 227, 0);
+  color: black;
+  padding: 2px;
+}
+.uv-high {
+  background-color: orange;
+  color: black;
+  padding: 2px;
+}
+.uv-very-high {
+  background-color: rgb(156, 0, 0);
+  color: white;
+  padding: 2px;
+}
+.uv-extreme {
+  background-color: purple;
+  color: white;
+  padding: 2px;
 }

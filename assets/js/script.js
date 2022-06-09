@@ -1,5 +1,17 @@
+// Main Weather Section
 const cityWeather = $("#day-0");
+// City name span element
 let cityNameSpan = $("#city-name");
+// Search Input
+const searchInput = document.querySelector("#search-input");
+
+const searchBtn = $("#search-btn");
+
+$(searchBtn).on("click", function () {
+  let searchInquery = $(searchInput).val();
+  getLocationCoord(searchInquery);
+  $("").replaceAll(".weather-item");
+});
 
 // Get location coordinates
 const getLocationCoord = function (city) {
@@ -34,16 +46,19 @@ const getWeather = function (lat, lon, name) {
     .then(function (response) {
       if (response.ok) {
         response.json().then(function (data) {
-          let weatherData = data.daily.slice(0, 6);
+          console.log(data);
+          let currentWeather = data.current;
+          let cityName = name;
+          displayWeather(cityName, 0, currentWeather.temp, currentWeather.wind_speed, currentWeather.humidity, currentWeather.uvi);
+
+          let forecaseWeather = data.daily.slice(0, 6);
           // Loop through current + 5 days
-          for (i = 0; i < weatherData.length; i++) {
-            let cityName = name;
+          for (i = 1; i < forecaseWeather.length; i++) {
             let day = i;
-            let temp = weatherData[i].temp.day;
-            let wind = weatherData[i].wind_speed;
-            let humidity = weatherData[i].humidity;
-            let uvIndex = weatherData[i].uvi;
-            displayWeather(cityName, day, temp, wind, humidity, uvIndex);
+            let temp = forecaseWeather[i].temp.day;
+            let wind = forecaseWeather[i].wind_speed;
+            let humidity = forecaseWeather[i].humidity;
+            displayWeather(cityName, day, temp, wind, humidity);
           }
         });
       } else {
@@ -56,20 +71,51 @@ const getWeather = function (lat, lon, name) {
 };
 
 const displayWeather = function (city, day, temp, wind, humidity, uvi) {
+  // Update City Name
   $(cityNameSpan).text(city);
 
+  // Choose corresponding day element
   let choosenBlock = $(`#day-${day}`);
+  // Create div to hold weather list
   let mainWeatherEl = document.createElement("div");
+  // Create list
   let weatherListEl = document.createElement("ul");
 
+  // Create list item for temp
   let tempLi = document.createElement("li");
   tempLi.textContent = `Temp: ${Math.ceil(temp)} °F`;
+  tempLi.classList.add("weather-item");
+
+  // Create list item for wind speed
   let windLi = document.createElement("li");
   windLi.textContent = `Wind: ${Math.ceil(wind)} MPH`;
+  windLi.classList.add("weather-item");
+
+  // Create list item for humidity
   let humidityLi = document.createElement("li");
   humidityLi.textContent = `Humidity: ${Math.ceil(humidity)} %`;
+  humidityLi.classList.add("weather-item");
+
+  // Create list item for uv index
   let uviLi = document.createElement("li");
-  uviLi.textContent = `UV Index: ${uvi}`;
+  uviLi.textContent = `UV Index:`;
+  uviLi.classList.add("weather-item");
+  // Create span element to show severity of UV index
+  let uviSpan = document.createElement("span");
+  uviSpan.textContent = uvi;
+  // Depending on uvi, change span background color
+  if (uvi < 3) {
+    uviSpan.classList.add("uv-low");
+  } else if (3 <= uvi <= 5) {
+    uviSpan.classList.add("uv-mod");
+  } else if (6 <= uvi <= 7) {
+    uviSpan.classList.add("uv-high");
+  } else if (8 <= uvi <= 10) {
+    uviSpan.classList.add("uv-very-high");
+  } else {
+    uviSpan.classList.add("uv-extreme");
+  }
+  uviLi.append(uviSpan);
 
   if (day === 0) {
     $(weatherListEl).append(tempLi, windLi, humidityLi, uviLi);
@@ -80,7 +126,4 @@ const displayWeather = function (city, day, temp, wind, humidity, uvi) {
     $(mainWeatherEl).append(weatherListEl);
     $(choosenBlock).append(mainWeatherEl);
   }
-  console.log(choosenBlock);
 };
-
-getLocationCoord("London");
