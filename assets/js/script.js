@@ -16,7 +16,7 @@ let dateDisplay = $("#current-date");
 $(searchBtn).on("click", function () {
   let searchInquery = $.trim($(searchInput).val());
   // Clear Name
-  $("").replaceAll(cityNameSpan);
+  $("span#cityNameSpan").replaceWith("<span id='city-name'></span>");
   // Send city name to coordinate finder
   getLocationCoord(searchInquery);
   // Remove current weather items
@@ -80,15 +80,16 @@ const getWeather = function (lat, lon, name) {
     .then(function (response) {
       if (response.ok) {
         response.json().then(function (data) {
-          console.log(data);
           // Get current weather data
           let currentWeather = data.current;
           // Get city name from parent function
-          let cityName = name;
 
           let currentData = {
-            dt: currentWeather.dt,
-            cityName: cityName,
+            timeData: {
+              dt: currentWeather.dt,
+              tz: data.timezone,
+            },
+            cityName: name,
             day: 0,
             temp: currentWeather.temp,
             wind: currentWeather.wind_speed,
@@ -104,7 +105,11 @@ const getWeather = function (lat, lon, name) {
           // Loop through current + 5 days
           for (i = 1; i < forecastedWeather.length; i++) {
             let forecastData = {
-              dt: forecastedWeather[i].dt,
+              timeData: {
+                dt: forecastedWeather[i].dt,
+                tz: data.timezone,
+              },
+              cityName: name,
               day: i,
               temp: forecastedWeather[i].temp.day,
               wind: forecastedWeather[i].wind_speed,
@@ -127,6 +132,9 @@ const getWeather = function (lat, lon, name) {
 const displayWeather = function (data) {
   // Update City Name
   $(cityNameSpan).text(data.cityName);
+
+  // Get date
+  let setDate = getDate(data.timeData);
   // Choose corresponding day element
   let choosenBlock = $(`#day-${data.day}`);
   // Create div to hold weather list
@@ -179,13 +187,16 @@ const displayWeather = function (data) {
   let iconEl = document.createElement("img");
   iconEl.setAttribute("src", weatherIconUrl);
   iconEl.classList.add("weather-item");
+
   // For day 0 add everything
   if (data.day === 0) {
+    $("#current-date").text(`(${setDate})`);
     $(weatherListEl).append(iconEl, tempLi, windLi, humidityLi, uviLi);
     $(mainWeatherEl).append(weatherListEl);
     $(choosenBlock).append(mainWeatherEl);
     // For every other day, do not add uv index
   } else {
+    $(choosenBlock).text(`(${setDate})`);
     $(weatherListEl).append(iconEl, tempLi, windLi, humidityLi);
     $(mainWeatherEl).append(weatherListEl);
     $(choosenBlock).append(mainWeatherEl);
@@ -202,11 +213,13 @@ $(document).ready(function () {
 $(".historyItem").click(function (event) {
   getLocationCoord(event.target.innerHTML);
   $("").replaceAll(".weather-item");
+  console.log(event.target.innerHTML);
 });
 
-let newDate = new Date(1654862400 * 1000);
+let getDate = function (data) {
+  let newDate = new Date(data.dt * 1000);
+  // Formatter for timezone heaven-sent: https://www.delftstack.com/howto/javascript/initialize-javascript-date-to-a-particular-timezone/
+  let formatter = new Intl.DateTimeFormat("en-US", { timeZone: data.tz });
 
-// Formatter for timezone heaven-sent: https://www.delftstack.com/howto/javascript/initialize-javascript-date-to-a-particular-timezone/
-let formatter = new Intl.DateTimeFormat("en-US", { timeZone: "Europe/London" });
-
-console.log(formatter.format(newDate));
+  return formatter.format(newDate);
+};
