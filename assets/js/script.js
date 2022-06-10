@@ -10,10 +10,16 @@ const searchInput = document.querySelector("#search-input");
 const searchBtn = $("#search-btn");
 // City History
 let savedCities = JSON.parse(localStorage.getItem("city")) || [];
+// Date (M/D/Y) container
+let dateDisplay = $("#current-date");
 
 $(searchBtn).on("click", function () {
   let searchInquery = $.trim($(searchInput).val());
+  // Clear Name
+  $("").replaceAll(cityNameSpan);
+  // Send city name to coordinate finder
   getLocationCoord(searchInquery);
+  // Remove current weather items
   $("").replaceAll(".weather-item");
 
   // Add city to savedCities array
@@ -77,32 +83,36 @@ const getWeather = function (lat, lon, name) {
           console.log(data);
           // Get current weather data
           let currentWeather = data.current;
-          // Get current weather icon code
-          let icon = currentWeather.weather[0].icon;
           // Get city name from parent function
           let cityName = name;
+
+          let currentData = {
+            dt: currentWeather.dt,
+            cityName: cityName,
+            day: 0,
+            temp: currentWeather.temp,
+            wind: currentWeather.wind_speed,
+            humidity: currentWeather.humidity,
+            uvi: currentWeather.uvi,
+            icon: currentWeather.weather[0].icon,
+          };
           // Pass current weather items to display weather function for display
-          displayWeather(cityName, 0, currentWeather.temp, currentWeather.wind_speed, currentWeather.humidity, currentWeather.uvi, icon);
+          displayWeather(currentData);
 
           // Only grab the the next 5 days
           let forecastedWeather = data.daily.slice(0, 6);
-          console.log(forecastedWeather);
           // Loop through current + 5 days
           for (i = 1; i < forecastedWeather.length; i++) {
-            // Get day id (starting at index 1)
-            let day = i;
-            // Get temp
-            let temp = forecastedWeather[i].temp.day;
-            // Get wind speed
-            let wind = forecastedWeather[i].wind_speed;
-            // Get humidity
-            let humidity = forecastedWeather[i].humidity;
-            // Get forecasted weather icon
-            let icon = forecastedWeather[i].weather[0].icon;
-            // Pass empty uvi value
-            let uvi = "";
+            let forecastData = {
+              dt: forecastedWeather[i].dt,
+              day: i,
+              temp: forecastedWeather[i].temp.day,
+              wind: forecastedWeather[i].wind_speed,
+              humidity: forecastedWeather[i].humidity,
+              icon: forecastedWeather[i].weather[0].icon,
+            };
             // Pass each value to display weather
-            displayWeather(cityName, day, temp, wind, humidity, uvi, icon);
+            displayWeather(forecastData);
           }
         });
       } else {
@@ -114,12 +124,11 @@ const getWeather = function (lat, lon, name) {
     });
 };
 
-const displayWeather = function (city, day, temp, wind, humidity, uvi, icon) {
+const displayWeather = function (data) {
   // Update City Name
-  $(cityNameSpan).text(city);
-
+  $(cityNameSpan).text(data.cityName);
   // Choose corresponding day element
-  let choosenBlock = $(`#day-${day}`);
+  let choosenBlock = $(`#day-${data.day}`);
   // Create div to hold weather list
   let mainWeatherEl = document.createElement("div");
   // Create list
@@ -127,17 +136,17 @@ const displayWeather = function (city, day, temp, wind, humidity, uvi, icon) {
 
   // Create list item for temp
   let tempLi = document.createElement("li");
-  tempLi.textContent = `Temp: ${Math.ceil(temp)} °F`;
+  tempLi.textContent = `Temp: ${Math.ceil(data.temp)} °F`;
   tempLi.classList.add("weather-item");
 
   // Create list item for wind speed
   let windLi = document.createElement("li");
-  windLi.textContent = `Wind: ${Math.ceil(wind)} MPH`;
+  windLi.textContent = `Wind: ${Math.ceil(data.wind)} MPH`;
   windLi.classList.add("weather-item");
 
   // Create list item for humidity
   let humidityLi = document.createElement("li");
-  humidityLi.textContent = `Humidity: ${Math.ceil(humidity)} %`;
+  humidityLi.textContent = `Humidity: ${Math.ceil(data.humidity)} %`;
   humidityLi.classList.add("weather-item");
 
   // Create list item for uv index
@@ -146,12 +155,13 @@ const displayWeather = function (city, day, temp, wind, humidity, uvi, icon) {
   uviLi.classList.add("weather-item");
 
   // Create span element to show severity of UV index
+  let uvi = data.uvi;
   let uviSpan = document.createElement("div");
   uviSpan.classList.add("uvi-div");
   uviSpan.textContent = uvi;
 
   // Depending on uvi, change span background color
-  if (uvi < 3) {
+  if (uvi <= 3) {
     uviSpan.classList.add("uv-low");
   } else if (3 < uvi && uvi < 6) {
     uviSpan.classList.add("uv-mod");
@@ -165,12 +175,12 @@ const displayWeather = function (city, day, temp, wind, humidity, uvi, icon) {
   uviLi.append(uviSpan);
 
   // Get icon for display
-  let weatherIconUrl = `http://openweathermap.org/img/wn/${icon}.png`;
+  let weatherIconUrl = `http://openweathermap.org/img/wn/${data.icon}.png`;
   let iconEl = document.createElement("img");
   iconEl.setAttribute("src", weatherIconUrl);
   iconEl.classList.add("weather-item");
   // For day 0 add everything
-  if (day === 0) {
+  if (data.day === 0) {
     $(weatherListEl).append(iconEl, tempLi, windLi, humidityLi, uviLi);
     $(mainWeatherEl).append(weatherListEl);
     $(choosenBlock).append(mainWeatherEl);
@@ -193,3 +203,10 @@ $(".historyItem").click(function (event) {
   getLocationCoord(event.target.innerHTML);
   $("").replaceAll(".weather-item");
 });
+
+let newDate = new Date(1654862400 * 1000);
+
+// Formatter for timezone heaven-sent: https://www.delftstack.com/howto/javascript/initialize-javascript-date-to-a-particular-timezone/
+let formatter = new Intl.DateTimeFormat("en-US", { timeZone: "Europe/London" });
+
+console.log(formatter.format(newDate));
