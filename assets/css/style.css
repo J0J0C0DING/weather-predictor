@@ -33,10 +33,6 @@ header {
   padding: 10px;
 }
 
-.forecast {
-  border: 1px solid black;
-}
-
 button,
 input {
   display: block;
@@ -50,14 +46,10 @@ button {
   padding: 10px;
 }
 
-.city-weather {
-  border: 1px solid black;
-  display: block;
-}
-
 .forecast {
   display: flex;
   flex-wrap: wrap;
+  border: 1px solid black;
 }
 
 .forecast h3 {
@@ -74,6 +66,8 @@ button {
 }
 
 .city-weather {
+  border: 1px solid black;
+  display: block;
   padding: 10px;
 }
 
@@ -84,8 +78,19 @@ ul {
 
 li {
   list-style: none;
+  padding: 5px 0;
 }
 
+/* UV index display */
+.uvi-div {
+  display: inline-block;
+  margin-left: 10px;
+  min-width: 40px;
+  text-align: center;
+  border-radius: 5px;
+}
+
+/* UV index background colors */
 .uv-low {
   background-color: green;
   color: white;
@@ -111,8 +116,27 @@ li {
   color: white;
   padding: 2px;
 }
+/* End UV index background colors */
 
+/* Search History Buttons */
 .historyItem {
   background-color: rgb(205, 205, 205);
   text-align: center;
+}
+
+.historyItem:hover {
+  background-color: #6ca0e3;
+  color: #f2f2f2;
+  cursor: pointer;
+}
+/* End Search History Buttons */
+
+#search-btn {
+  background-color: #6ca0e3;
+  color: white;
+}
+
+#search-btn:hover {
+  background-color: #32609c;
+  cursor: pointer;
 }
