@@ -50,7 +50,7 @@ historyDisplay();
 // Get location coordinates
 const getLocationCoord = function (city) {
   // Get OpenWeather API url
-  let apiUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=d1db20b74fefd2cbae86402d9eb44d4e`;
+  let apiUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=d1db20b74fefd2cbae86402d9eb44d4e`;
   // Make request to URL
   fetch(apiUrl)
     .then(function (response) {
@@ -183,7 +183,7 @@ const displayWeather = function (data) {
   uviLi.append(uviSpan);
 
   // Get icon for display
-  let weatherIconUrl = `http://openweathermap.org/img/wn/${data.icon}.png`;
+  let weatherIconUrl = `https://openweathermap.org/img/wn/${data.icon}.png`;
   let iconEl = document.createElement("img");
   iconEl.setAttribute("src", weatherIconUrl);
   iconEl.classList.add("weather-item");
