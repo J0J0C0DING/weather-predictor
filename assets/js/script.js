@@ -30,7 +30,6 @@ $(searchBtn).on("click", function () {
   localStorage.setItem("city", JSON.stringify(savedCities));
 
   historyDisplay();
-
   searchInput.value = "";
 });
 
@@ -45,6 +44,7 @@ const historyDisplay = function () {
     $(searchHistory).append(`<button class='historyItem' id='history-${i}'>${savedCities[i].city}</button>`);
   }
 };
+
 historyDisplay();
 
 // Get location coordinates
